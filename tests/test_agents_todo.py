@@ -1,19 +1,42 @@
-"""Skeleton guard test.
-
-NOTE(student): Test này chỉ xác nhận skeleton còn nguyên TODO. Sau khi bạn implement
-SupervisorAgent, test này SẼ FAIL - đó là điều bình thường. Hãy xóa hoặc thay thế nó
-bằng unit test thật cho routing policy của bạn.
-"""
-
-import pytest
-
 from multi_agent_research_lab.agents import SupervisorAgent
-from multi_agent_research_lab.core.errors import StudentTodoError
-from multi_agent_research_lab.core.schemas import ResearchQuery
+from multi_agent_research_lab.core.schemas import ResearchQuery, SourceDocument
 from multi_agent_research_lab.core.state import ResearchState
 
 
-def test_supervisor_is_student_todo() -> None:
+def test_supervisor_routes_to_researcher_first() -> None:
     state = ResearchState(request=ResearchQuery(query="Explain multi-agent systems"))
-    with pytest.raises(StudentTodoError):
-        SupervisorAgent().run(state)
+    SupervisorAgent().run(state)
+
+    assert state.route_history == ["researcher"]
+
+
+def test_supervisor_routes_workers_in_order() -> None:
+    state = ResearchState(
+        request=ResearchQuery(query="Explain multi-agent systems"),
+        sources=[
+            SourceDocument(
+                title="Research source",
+                snippet="Evidence about multi-agent systems.",
+            )
+        ],
+        research_notes="Collected evidence.",
+    )
+    supervisor = SupervisorAgent()
+
+    supervisor.run(state)
+    assert state.route_history == ["analyst"]
+
+    state.analysis_notes = "Compared the evidence and assessed source reliability."
+    supervisor.run(state)
+    assert state.route_history == ["analyst", "writer"]
+
+
+def test_supervisor_stops_after_writing() -> None:
+    state = ResearchState(
+        request=ResearchQuery(query="Explain multi-agent systems"),
+        final_answer="A completed answer with citations.",
+    )
+
+    SupervisorAgent().run(state)
+
+    assert state.route_history == ["done"]
