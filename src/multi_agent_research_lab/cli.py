@@ -11,6 +11,12 @@ from rich.panel import Panel
 from multi_agent_research_lab.core.config import get_settings
 from multi_agent_research_lab.core.schemas import ResearchQuery
 from multi_agent_research_lab.core.state import ResearchState
+from multi_agent_research_lab.evaluation.benchmark import (
+    baseline_runner,
+    multi_agent_runner,
+    run_suite,
+)
+from multi_agent_research_lab.evaluation.report import render_markdown_report
 from multi_agent_research_lab.graph.workflow import MultiAgentWorkflow
 from multi_agent_research_lab.observability.logging import configure_logging
 from multi_agent_research_lab.services.llm_client import LLMClient
@@ -81,6 +87,33 @@ def multi_agent(
     workflow = MultiAgentWorkflow()
     result = workflow.run(state)
     console.print(result.model_dump_json(indent=2))
+
+
+@app.command()
+def benchmark(
+    queries: Annotated[
+        list[str] | None,
+        typer.Option("--query", "-q", help="Query to benchmark; repeat for a suite."),
+    ] = None,
+    output: Annotated[str, typer.Option("--output", help="Markdown report path.")] = (
+        "reports/benchmark_report.md"
+    ),
+) -> None:
+    """Compare baseline and multi-agent on the same offline-safe query suite."""
+
+    _init()
+    selected = queries or [
+        "Research GraphRAG state-of-the-art and write a 500-word summary",
+        "Explain multi-agent systems and their failure modes",
+        "Compare retrieval augmented generation with GraphRAG",
+    ]
+    report = render_markdown_report(run_suite(selected, baseline_runner, multi_agent_runner))
+    from pathlib import Path
+
+    report_path = Path(output)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(report, encoding="utf-8")
+    console.print(f"Benchmark report written to {report_path}")
 
 
 if __name__ == "__main__":

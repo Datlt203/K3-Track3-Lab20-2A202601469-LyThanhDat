@@ -25,7 +25,7 @@ class LLMClient:
         Call OpenAI when configured; keep local demos deterministic otherwise.
         """
         settings = get_settings()
-        if settings.openai_api_key:
+        if settings.openai_api_key and settings.app_env != "offline":
             try:
                 from openai import OpenAI
                 client = OpenAI(

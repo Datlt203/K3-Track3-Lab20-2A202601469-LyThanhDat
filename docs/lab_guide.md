@@ -69,6 +69,10 @@ Benchmark tối thiểu:
 | Citation coverage | số claims có source / tổng claims chính |
 | Failure rate | số query fail / tổng query |
 
+Chạy offline bằng `APP_ENV=offline`. Để bật trace UI LangSmith, cấu hình
+`LANGSMITH_API_KEY` và đặt `LANGSMITH_ENABLED=true`; trace local có thể xuất JSONL qua
+`TRACE_FILE=reports/trace.jsonl`.
+
 ## Troubleshooting
 
 ### macOS: lỗi SSL certificate khi gọi API qua HTTPS (Tavily, OpenAI, ...)
@@ -115,3 +119,12 @@ Mỗi nhóm trả lời 2 câu:
 
 1. Case nào nên dùng multi-agent? Vì sao?
 2. Case nào không nên dùng multi-agent? Vì sao?
+
+### Exit ticket — câu trả lời
+
+1. **Nên dùng** khi bài toán phức tạp, có nhiều giai đoạn độc lập như tìm kiếm nhiều nguồn,
+đối chiếu độ tin cậy, kiểm chứng và viết báo cáo; các role riêng giúp chia nhỏ context, tăng
+khả năng debug và có thể chạy song song.
+2. **Không nên dùng** cho câu hỏi đơn giản, yêu cầu một phép biến đổi ngắn, hoặc tác vụ có
+latency/cost rất chặt. Khi không có handoff thực sự cần thiết, nhiều agent chỉ thêm overhead,
+nhiều điểm lỗi và có thể làm mất citation/context.

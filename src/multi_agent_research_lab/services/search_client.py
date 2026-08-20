@@ -16,7 +16,7 @@ class SearchClient:
         Search configured provider first, then fall back to offline corpus.
         """
         settings = get_settings()
-        if settings.tavily_api_key:
+        if settings.tavily_api_key and settings.app_env != "offline":
             try:
                 from tavily import TavilyClient
 

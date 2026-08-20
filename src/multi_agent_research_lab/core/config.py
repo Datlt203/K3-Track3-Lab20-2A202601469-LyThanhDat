@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     langsmith_project: str = Field(
         default="multi-agent-research-lab", validation_alias="LANGSMITH_PROJECT"
     )
+    langsmith_enabled: bool = Field(default=False, validation_alias="LANGSMITH_ENABLED")
+    trace_file: str | None = Field(default=None, validation_alias="TRACE_FILE")
 
     langfuse_public_key: str | None = Field(default=None, validation_alias="LANGFUSE_PUBLIC_KEY")
     langfuse_secret_key: str | None = Field(default=None, validation_alias="LANGFUSE_SECRET_KEY")
